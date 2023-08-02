@@ -36,10 +36,9 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
                 "${SensorReadingContract.COLUMN_NAME_VALUE_0}  REAL ,"+
                 "${SensorReadingContract.COLUMN_NAME_VALUE_1}  REAL ,"+
                 "${SensorReadingContract.COLUMN_NAME_VALUE_2}  REAL ,"+
-                "${SensorReadingContract.COLUMN_NAME_VALUE_2}  REAL ,"+
                 "${SensorReadingContract.COLUMN_NAME_VALUE_3}  REAL ,"+
                 "${SensorReadingContract.COLUMN_NAME_VALUE_4}  REAL ,"+
-                "${SensorReadingContract.COLUMN_NAME_VALUE_5}  REAL ,"+
+                "${SensorReadingContract.COLUMN_NAME_VALUE_5}  REAL "+
                 ")"
         const val DELETE_TABLES_QUERY = "DROP TABLE IF EXISTS ${TABLE_NAME}";
     }
@@ -105,7 +104,77 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
         val newRowId = db?.insert(SensorReadingContract.TABLE_NAME, null, values)
     }
 
-    fun getReadings(sessionID:String):List<SensorReading> {
+
+
+    fun clearDatabase() {
+        val db = writableDatabase
+        db.beginTransaction()
+        try {
+            db.execSQL(SensorReadingContract.DELETE_TABLES_QUERY)
+            db.execSQL(SensorReadingContract.CREATE_TABLE_QUERY)
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+    fun getAllReadings():List<SensorReading>  {
+        val readings = mutableListOf<SensorReading>()
+        val db = writableDatabase
+        val projection = arrayOf(
+            BaseColumns._ID,
+            SensorReadingContract.COLUMN_NAME_SENSORNAME,
+            SensorReadingContract.COLUMN_NAME_TIMESTAMP,
+            SensorReadingContract.COLUMN_NAME_SESSIONID,
+            SensorReadingContract.COLUMN_NAME_VALUE_0,
+            SensorReadingContract.COLUMN_NAME_VALUE_1,
+            SensorReadingContract.COLUMN_NAME_VALUE_2,
+            SensorReadingContract.COLUMN_NAME_VALUE_3,
+            SensorReadingContract.COLUMN_NAME_VALUE_4,
+            SensorReadingContract.COLUMN_NAME_VALUE_5,
+        )
+        val sortOrder = "${SensorReadingContract.COLUMN_NAME_TIMESTAMP} ASC"
+        val cursor = db.query(
+            SensorReadingContract.TABLE_NAME,
+            projection,
+            null,
+            null,
+            null,
+            null,
+            sortOrder
+        )
+        with(cursor) {
+            while (moveToNext()) {
+                val reading = SensorReading(
+                    source = getString(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_SENSORNAME)),
+                    timestamp = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_TIMESTAMP)),
+                    sessionID = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_SESSIONID))
+                );
+                if (!cursor.isNull(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_0))) {
+                    reading.values.add(getFloat(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_0)))
+                }
+                if (!cursor.isNull(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_1))) {
+                    reading.values.add(getFloat(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_1)))
+                }
+                if (!cursor.isNull(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_2))) {
+                    reading.values.add(getFloat(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_2)))
+                }
+                if (!cursor.isNull(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_3))) {
+                    reading.values.add(getFloat(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_3)))
+                }
+                if (!cursor.isNull(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_4))) {
+                    reading.values.add(getFloat(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_4)))
+                }
+                if (!cursor.isNull(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_5))) {
+                    reading.values.add(getFloat(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_5)))
+                }
+                readings.add(reading)
+            }
+        }
+        return readings
+    }
+
+    fun getReadings(sessionID:Long):List<SensorReading> {
         val readings = mutableListOf<SensorReading>()
         val db = writableDatabase
         val projection = arrayOf(
@@ -121,7 +190,7 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
             SensorReadingContract.COLUMN_NAME_VALUE_5,
         )
         val selection = "${SensorReadingContract.COLUMN_NAME_SESSIONID} = ?"
-        val selectionArgs = arrayOf(sessionID)
+        val selectionArgs = arrayOf(sessionID.toString())
         val sortOrder = "${SensorReadingContract.COLUMN_NAME_TIMESTAMP} ASC"
         val cursor = db.query(
             SensorReadingContract.TABLE_NAME,
@@ -136,7 +205,7 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
             while (moveToNext()) {
                 val reading = SensorReading(
                     source = getString(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_SENSORNAME)),
-                    sessionID = getInt(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_SESSIONID)),
+                    sessionID = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_SESSIONID)),
                     timestamp = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_TIMESTAMP)),
                 )
                 if (!cursor.isNull(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_0))) {

@@ -12,5 +12,14 @@ class DefaultSensorLoggingReceiverListener:ISensorLoggingReceiverListener {
         dataHelper.insertReadingList(buffer)
     }
 
+    override fun onReadingReceived(reading:SensorReading) {
+    }
+
+    fun clearData() {
+        dataHelper.clearDatabase()
+    }
+    fun exportData():List<SensorReading> {
+        return dataHelper.getAllReadings()
+    }
 
 }

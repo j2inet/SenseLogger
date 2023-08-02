@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
 }
 
@@ -8,7 +8,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "net.j2i.senselogger"
+        //applicationId "net.j2i.senselogger"
         minSdk 33
         targetSdk 33
         versionCode 1

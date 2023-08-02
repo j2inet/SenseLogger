@@ -4,20 +4,20 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 
 class SensorLoggingReceiver: SensorEventListener {
-    val sessionID:Int
+    val sessionID:Long
     var buffer = ArrayList<SensorReading>()
     var notifyAtSizeCount= 0
     var hasRaisedNotification = false
     var listener:ISensorLoggingReceiverListener
 
-    constructor(sessionID:Int, listener:ISensorLoggingReceiverListener, notifyAtSizeCount:Int = 128) {
+    constructor(sessionID:Long, listener:ISensorLoggingReceiverListener, notifyAtSizeCount:Int = 128) {
         this.sessionID = sessionID
         this.notifyAtSizeCount = notifyAtSizeCount
         this.listener = listener
     }
 
     override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) {
-        TODO()
+
     }
 
     fun getSourceName(sensorEvent: SensorEvent):String? {
@@ -136,6 +136,7 @@ class SensorLoggingReceiver: SensorEventListener {
         buffer += reading
         if(!hasRaisedNotification and (buffer.size >= notifyAtSizeCount)) {
             hasRaisedNotification = true
+            this.Flush()
         }
         if(buffer.size > notifyAtSizeCount*4) {
             buffer.removeAt(0)

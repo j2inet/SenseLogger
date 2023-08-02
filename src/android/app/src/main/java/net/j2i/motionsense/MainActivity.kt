@@ -1,6 +1,7 @@
 package net.j2i.motionsense
 
 import android.content.Intent
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -41,13 +42,27 @@ class MainActivity : ComponentActivity() {
         }
         loggingManager = LoggingManager(this)
     }
+
+    fun playSound(isMajor:Boolean = true) {
+        val asset = Uri.parse("android.resource://${packageName}/raw/${if (isMajor) net.j2i.senselogger.R.raw.major else net.j2i.senselogger.R.raw.minor }")
+        val player = MediaPlayer()
+        player.setDataSource(this, asset)
+        player.prepare()
+        player.start()
+        player.setOnCompletionListener { player.release() }
+        player.isLooping = false
+
+    }
+
     fun startLogging() {
         val sensorList = arrayListOf<Int>(android.hardware.Sensor.TYPE_ACCELEROMETER, android.hardware.Sensor.TYPE_GYROSCOPE)
         loggingManager.startLogging(sensorList)
+        playSound(true)
     }
 
     fun stopLogging() {
         loggingManager.stopLogging()
+        playSound(false)
     }
 
     fun exportData() {

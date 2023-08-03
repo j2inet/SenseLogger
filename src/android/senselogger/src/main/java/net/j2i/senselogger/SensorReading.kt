@@ -8,7 +8,7 @@ import kotlinx.serialization.json.JsonPrimitive
 //import kotlinx.serialization.json.JsonArray
 
 @Serializable
-data class SensorReading(val source:String="",val sessionID:Long = 0, val timestamp:Long=0L, var values:ArrayList<Float> = ArrayList<Float> ())  {
+data class SensorReading(val source:String="",val sessionID:Long = 0, val timestamp:Long=0L, val adjustedTimestamp:Long = 0L, var values:ArrayList<Float> = ArrayList<Float> ())  {
 
     fun getJobject():JsonObject {
         var jList: List<JsonElement> = listOf()
@@ -21,6 +21,7 @@ data class SensorReading(val source:String="",val sessionID:Long = 0, val timest
                 "source" to JsonPrimitive(source),
                 "sessionID" to JsonPrimitive(sessionID),
                 "timestamp" to JsonPrimitive(timestamp),
+                "adjustedTimestamp" to JsonPrimitive(adjustedTimestamp),
                 "values" to JsonArray(jList)
             )
         )

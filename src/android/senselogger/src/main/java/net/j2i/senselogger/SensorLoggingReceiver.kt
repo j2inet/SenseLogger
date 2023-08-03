@@ -9,6 +9,7 @@ class SensorLoggingReceiver: SensorEventListener {
     var notifyAtSizeCount= 0
     var hasRaisedNotification = false
     var listener:ISensorLoggingReceiverListener
+    var timestampBase = 0L;
 
     constructor(sessionID:Long, listener:ISensorLoggingReceiverListener, notifyAtSizeCount:Int = 128) {
         this.sessionID = sessionID
@@ -116,7 +117,7 @@ class SensorLoggingReceiver: SensorEventListener {
                 sensorName = "step_detector"
             }
 
-            android.hardware.Sensor.TYPE_AMBIENT_TEMPERATURE -> {
+            android.hardware.Sensor.TYPE_TEMPERATURE -> {
                 sensorName = "ambient_temperature"
             }
         }
@@ -127,12 +128,15 @@ class SensorLoggingReceiver: SensorEventListener {
 
         var reading: SensorReading? = null
         val sensorName = getSourceName(event!!)
+        if(timestampBase == 0L) {
+            timestampBase = event.timestamp
+        }
 
         if(sensorName == null) {
             return
         }
         val valueList = ArrayList<Float>(event.values.toList())
-        reading = SensorReading(source = sensorName, sessionID=this.sessionID, timestamp = event.timestamp, values = valueList)
+        reading = SensorReading(source = sensorName, sessionID=this.sessionID, timestamp = event.timestamp, adjustedTimestamp = event.timestamp - timestampBase , values = valueList)
         buffer += reading
         if(!hasRaisedNotification and (buffer.size >= notifyAtSizeCount)) {
             hasRaisedNotification = true

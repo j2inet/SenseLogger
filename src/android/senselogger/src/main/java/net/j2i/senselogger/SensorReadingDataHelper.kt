@@ -18,6 +18,7 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
         const val COLUMN_NAME_SESSIONID = "sessionID"
         const val COLUMN_NAME_SENSORNAME = "sensor_name"
         const val COLUMN_NAME_TIMESTAMP = "timestamp"
+        const val COLUMN_NAME_ADJUSTEDTIMESTAMP = "adjustedTimestamp"
         const val COLUMN_NAME_VALUE_0 = "value0"
         const val COLUMN_NAME_VALUE_1 = "value1"
         const val COLUMN_NAME_VALUE_2 = "value2"
@@ -33,6 +34,7 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
                 "${SensorReadingContract.COLUMN_NAME_SESSIONID}  INTEGER, "+
                 "${SensorReadingContract.COLUMN_NAME_SENSORNAME}  TEXT NOT NULL, "+
                 "${SensorReadingContract.COLUMN_NAME_TIMESTAMP}  INT, "+
+                "${SensorReadingContract.COLUMN_NAME_ADJUSTEDTIMESTAMP}  INT, "+
                 "${SensorReadingContract.COLUMN_NAME_VALUE_0}  REAL ,"+
                 "${SensorReadingContract.COLUMN_NAME_VALUE_1}  REAL ,"+
                 "${SensorReadingContract.COLUMN_NAME_VALUE_2}  REAL ,"+
@@ -79,6 +81,7 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
         val values = ContentValues().apply {
             put(SensorReadingContract.COLUMN_NAME_SENSORNAME, reading.source)
             put(SensorReadingContract.COLUMN_NAME_TIMESTAMP, reading.timestamp)
+            put(SensorReadingContract.COLUMN_NAME_ADJUSTEDTIMESTAMP, reading.adjustedTimestamp)
             put(SensorReadingContract.COLUMN_NAME_SESSIONID, reading.sessionID)
             if(reading.values.size > 0) {
                 put(SensorReadingContract.COLUMN_NAME_VALUE_0, reading.values[0])
@@ -125,6 +128,7 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
             BaseColumns._ID,
             SensorReadingContract.COLUMN_NAME_SENSORNAME,
             SensorReadingContract.COLUMN_NAME_TIMESTAMP,
+            SensorReadingContract.COLUMN_NAME_ADJUSTEDTIMESTAMP,
             SensorReadingContract.COLUMN_NAME_SESSIONID,
             SensorReadingContract.COLUMN_NAME_VALUE_0,
             SensorReadingContract.COLUMN_NAME_VALUE_1,
@@ -148,6 +152,7 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
                 val reading = SensorReading(
                     source = getString(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_SENSORNAME)),
                     timestamp = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_TIMESTAMP)),
+                    adjustedTimestamp = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_ADJUSTEDTIMESTAMP)),
                     sessionID = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_SESSIONID))
                 );
                 if (!cursor.isNull(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_0))) {
@@ -181,6 +186,7 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
             BaseColumns._ID,
             SensorReadingContract.COLUMN_NAME_SENSORNAME,
             SensorReadingContract.COLUMN_NAME_TIMESTAMP,
+            SensorReadingContract.COLUMN_NAME_ADJUSTEDTIMESTAMP,
             SensorReadingContract.COLUMN_NAME_SESSIONID,
             SensorReadingContract.COLUMN_NAME_VALUE_0,
             SensorReadingContract.COLUMN_NAME_VALUE_1,
@@ -207,6 +213,7 @@ class SensorReadingDataHelper (context:Context): SQLiteOpenHelper(context, DATAB
                     source = getString(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_SENSORNAME)),
                     sessionID = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_SESSIONID)),
                     timestamp = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_TIMESTAMP)),
+                    adjustedTimestamp = getLong(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_ADJUSTEDTIMESTAMP))
                 )
                 if (!cursor.isNull(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_0))) {
                     reading.values.add(getFloat(getColumnIndexOrThrow(SensorReadingContract.COLUMN_NAME_VALUE_0)))

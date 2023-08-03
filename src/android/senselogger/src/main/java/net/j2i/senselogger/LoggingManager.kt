@@ -50,6 +50,10 @@ class LoggingManager {
         return (loggingReceiver as DefaultSensorLoggingReceiverListener).exportData()
     }
 
+    fun clearData() {
+        (loggingReceiver as DefaultSensorLoggingReceiverListener).clearData()
+    }
+
     fun dump() {
         sensorListener.Flush()
     }

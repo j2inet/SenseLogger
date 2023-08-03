@@ -55,7 +55,8 @@ class MainActivity : ComponentActivity() {
     }
 
     fun startLogging() {
-        val sensorList = arrayListOf<Int>(android.hardware.Sensor.TYPE_ACCELEROMETER, android.hardware.Sensor.TYPE_GYROSCOPE)
+        //val sensorList = arrayListOf<Int>(android.hardware.Sensor.TYPE_ACCELEROMETER, android.hardware.Sensor.TYPE_GYROSCOPE)
+        val sensorList = arrayListOf<Int>(android.hardware.Sensor.TYPE_TEMPERATURE)
         loggingManager.startLogging(sensorList)
         playSound(true)
     }
@@ -72,6 +73,10 @@ class MainActivity : ComponentActivity() {
             putExtra(Intent.EXTRA_TITLE, "sensor_readings.json")
         }
         this.startActivityForResult(intent, PICKER_EXPORT_READING)
+    }
+
+    fun clearData() {
+        loggingManager.clearData()
     }
 
 
@@ -116,22 +121,9 @@ fun UILayout(a:MainActivity,modifier:Modifier = Modifier) {
         Button(onClick = { a?.stopLogging() }, modifier = modifier, content = { Text("Stop") });
         Text(text = "Export Data")
         Button(onClick = { a?.exportData() }, modifier = modifier, content = { Text("Export") });
+        Text(text = "Clear Data")
+        Button(onClick = { a?.clearData() }, modifier = modifier, content = { Text("Export") });
 
     })
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MotionSenseTheme {
-        Greeting("Android")
-    }
-}

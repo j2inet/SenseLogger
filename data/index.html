@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Reading Stats</title>
+        <script>
+
+
+            function makeCSV(dataList) { 
+                var rootElement = document.getElementById('csvDocument');
+
+                var rowElement = document.createElement('div');
+                rowElement.innerText = "sessionID, source, timestamp, v0, v1, v2, v3, v4, v5";
+                rootElement.appendChild(rowElement);
+                dataList.forEach(element => {
+                    var rowElement = document.createElement('div');
+                    var t = `${element.sessionID}, ${element.source}, ${element.timestamp} `
+                    element.values.forEach(v => {
+                        t += `, ${v}`
+                    })
+                    rowElement.innerText = t;
+                    rootElement.appendChild(rowElement);
+                });
+
+
+            }
+
+            function loadData() {
+                return new Promise((resolve,reject)=>{
+                    let sessionMap = {}
+                    let sensorTypeList = {};
+                    fetch('walk-sensor_readings.json')
+                    .then(resp=>resp.json())
+                    .then(jsonData=> {
+                        makeCSV(jsonData);
+                        jsonData.forEach(element => {
+                            if(sessionMap[element.sessionID] == null) {
+                                sessionMap[element.sessionID] = {
+                                    sources:{}
+                                }
+                            }
+                            var currentSession = sessionMap[element.sessionID];
+
+                            if(currentSession.sources[element.source] == null) {
+                                var x = currentSession.sources[element.source] = { 
+                                    dimensions:element.values.length,
+                                    valueList:[]
+                                };
+                            }
+                            var currentSource = currentSession.sources[element.source];
+                            currentSource.valueList.push({
+                                timestamp:element.timestamp,
+                                valueList:element.values
+                            });
+                            
+                        });
+                        console.log(sessionMap);
+                        resolve(sessionMap);
+                    });
+                });
+            }
+
+            function getAverage(sessionMap) {
+                for(x in sessionMap) {
+                    var session = sessionMap[x];
+                    for(source in session.sources) {
+                        var currentSource = session.sources[source]
+                        var accumulator = Array.from({length:currentSource.dimensions});
+                        var average = Array.from({length:currentSource.dimensions});
+                        for(var i=0;i<accumulator.length;++i) {
+                            accumulator[i] = 0;
+                            average[i]=0;
+                        }
+                        currentSource.valueList.forEach(e=>{
+                            var magnitude = 0;
+                            for(var i=0;i<e.valueList.length;++i) {
+                                accumulator[i] += e.valueList[i];
+                                magnitude += e.valueList[i] * e.valueList[i]
+                            }
+                            e.valueList.magnitude = Math.sqrt(magnitude);
+                        });
+                        for(var i=0;i<average.length;++i) {
+                            average[i] = accumulator[i] / currentSource.valueList.length;
+                        }
+                        currentSource.average = average;
+
+                    }
+                }
+            }
+
+            function main() {
+                loadData()
+                .then(sessionMap=>{
+                    getAverage(sessionMap);
+                });
+            }
+
+        </script>
+    </head>
+    <body onload="main()">
+
+        <div id="csvDocument">
+
+        </div>
+    </body>
+</html>
